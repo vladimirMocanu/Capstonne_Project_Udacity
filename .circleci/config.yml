@@ -79,7 +79,7 @@ jobs:
           command: |
             echo "-------------------------------------pull-docker-update-config----------------------------"
             # deploy cluster
-            aws eks update-kubeconfig --name EKSCluster-${CIRCLE_WORKFLOW_ID:0:7}
+            aws eks update-kubeconfig --name eksCluster-${CIRCLE_WORKFLOW_ID:0:7}
             docker pull $DOCKERHUB_USERNAME/app_udacity
       - run:
           name: Deploy eks to cluster
