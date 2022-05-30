@@ -18,7 +18,6 @@ jobs:
             . venv/bin/activate
             make install
             make lint
-            make test
   push-docker:
     docker:
       - image: cimg/go:1.17

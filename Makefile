@@ -14,7 +14,8 @@ install:
 	chmod +x ./hadolint
 
 test:
-	.venv/bin/pytest
+	python -m pytest -vv --cov=myrepolib tests/*.py
+	python -m pytest --nbval notebook.ipynb
 
 lint:
 	./hadolint Dockerfile
