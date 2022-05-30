@@ -1,0 +1,100 @@
+version: 2.1
+
+orbs:
+  kubernetes: circleci/kubernetes@1.3.0
+
+jobs:
+  check-code:
+    docker:
+      - image: cimg/python:3.9
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: install Linter run lint to check Dockerfile
+          command: |
+            # make setup
+            python3 -m venv venv
+            . venv/bin/activate
+            make install
+            make lint
+            make test
+
+  push-docker:
+    build:
+      docker:
+        - image: cimg/go:1.17
+
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+
+      - run:
+          name: build and upload to docker hub
+          command: |
+            docker build --tag=app_udacity .
+            docker images
+            docker login -u="$DOCKERHUB_USERNAME" -p="$DOCKERHUB_PASSWORD"
+            docker tag app_udacity $DOCKERHUB_USERNAME/app_udacity
+            docker push $DOCKERHUB_USERNAME/app_udacity
+
+  create-eks-cluster:
+    docker:
+      - image: python:3.7-alpine3.11
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: install eks and create EKS cluster
+          command: |
+            apk add --update tar gzip  curl
+            curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/v0.83.0/eksctl_Linux_amd64.tar.gz" | tar xz -C /tmp
+            mv /tmp/eksctl /usr/local/bin
+            eksctl create cluster --name=EKSCluster-${CIRCLE_WORKFLOW_ID:0:7}
+
+  deploy-eks-cluster:
+    docker:
+      - image: circleci/python:2.7.14
+        user: root
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: install kubectl tool and deploy the cluster
+          command: |
+            sudo apt -y install tar gzip unzip curl
+            sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            sudo unzip awscliv2.zip
+            sudo ./aws/install
+            echo "----------------------------------------install-awscli-------------------------------------"
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            kubectl version --client
+            echo "----------------------------------------install-kubectl-----------------------------------"
+            # deploy cluster
+            aws eks update-kubeconfig --name EKSCluster-${CIRCLE_WORKFLOW_ID:0:7}
+            docker pull $DOCKERHUB_USERNAME/$IMAGE_NAME
+            echo "-------------------------------------pull-docker-update-config----------------------------"
+            # kubectl port-forward 8080:80
+            kubectl create namespace eks-deployment
+            kubectl apply -f eks-deployment.yaml
+            kubectl apply -f eks-service.yaml
+            echo "---------------------------------------deploy-eks-to-cluster------------------------------"
+            kubectl get all -n eks-deployment
+            kubectl -n eks-deployment describe service eks-deployment
+            echo "---------------------------------------------DONE-----------------------------------------"
+workflows:
+  default:
+    jobs:
+      - check-code
+      - push-docker:
+          requires: [check-code]
+      - create-eks-cluster:
+          requires: [push-docker]
+      - deploy-eks-cluster:
+          requires: [create-eks-cluster]
