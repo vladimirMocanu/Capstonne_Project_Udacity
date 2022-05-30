@@ -86,7 +86,7 @@ jobs:
           command: |
             echo "---------------------------------------deploy-eks-to-cluster------------------------------"
             # kubectl port-forward 8080:80
-            kubectl create namespace eks-deployment
+            kubectl create namespace app-deployment
             kubectl apply -f eks-cluster/eks-deployment.yaml
             kubectl apply -f eks-cluster/eks-service.yaml
       - run:
