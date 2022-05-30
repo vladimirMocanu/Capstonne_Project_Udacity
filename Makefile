@@ -17,7 +17,7 @@ test:
 	.venv/bin/pytest
 
 lint:
-	hadolint Dockerfile
+	./hadolint Dockerfile
 	pylint --disable=R,C,W1203,W1202 ./src/app.py
 
 all: install lint test
