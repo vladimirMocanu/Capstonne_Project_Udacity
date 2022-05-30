@@ -28,7 +28,12 @@ jobs:
           docker_layer_caching: true
       - run:
           name: test
-          command: ls -l
+          command: |
+            ls -l
+            cd eks-cluster
+            ls -l 
+            cd ..
+            kubectl apply -f eks-cluster/eks-deployment.yaml
 
   push-docker-image:
     docker:
