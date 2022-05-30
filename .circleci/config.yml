@@ -102,9 +102,9 @@ workflows:
   default:
     jobs:
       - check-code
-      - push-docker:
+      - push-docker-image:
           requires: [check-code]
       - create-eks-cluster:
-          requires: [push-docker]
+          requires: [push-docker-image]
       - deploy-eks-cluster:
           requires: [create-eks-cluster]
