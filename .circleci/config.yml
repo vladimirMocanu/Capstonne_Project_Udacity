@@ -5,36 +5,19 @@ orbs:
 
 jobs:
   check-code:
-    # docker:
-    #   - image: cimg/python:3.7
-    # working_directory: ~/repo
-    # steps:
-    #   - checkout
-    #   - run:
-    #       name: Install lint + run lint
-    #       command: |
-    #         make setup
-    #         # python3 -m venv venv
-    #         # . venv/bin/activate
-    #         make install
-    #         make lint
     docker:
       - image: cimg/python:3.7
-        user: root
     working_directory: ~/repo
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - run:
-          name: test
+          name: Install lint + run lint
           command: |
-            ls -l
-            cd eks-cluster
-            ls -l 
-            cd ..
-            cat eks-cluster/eks-deployment.yaml
-            cat /eks-cluster/eks-deployment.yaml
+            make setup
+            # python3 -m venv venv
+            # . venv/bin/activate
+            make install
+            make lint
 
   push-docker-image:
     docker:
@@ -119,9 +102,9 @@ workflows:
   default:
     jobs:
       - check-code
-      # - push-docker-image:
-      #     requires: [check-code]
-      # - create-eks-cluster:
-      #     requires: [push-docker-image]
-      # - deploy-eks-cluster:
-      #     requires: [create-eks-cluster]
+      - push-docker-image:
+          requires: [check-code]
+      - create-eks-cluster:
+          requires: [push-docker-image]
+      - deploy-eks-cluster:
+          requires: [create-eks-cluster]
