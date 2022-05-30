@@ -19,11 +19,9 @@ jobs:
             make install
             make lint
             make test
-
   push-docker:
-    build:
-      docker:
-        - image: cimg/go:1.17
+    docker:
+      - image: cimg/go:1.17
 
     working_directory: ~/repo
     steps:
