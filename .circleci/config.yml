@@ -6,7 +6,7 @@ orbs:
 jobs:
   check-code:
     docker:
-      - image: cimg/python:3.9
+      - image: cimg/python:3.7
     working_directory: ~/repo
     steps:
       - checkout
@@ -50,11 +50,11 @@ jobs:
             apk add --update tar gzip  curl
             curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/v0.83.0/eksctl_Linux_amd64.tar.gz" | tar xz -C /tmp
             mv /tmp/eksctl /usr/local/bin
-            eksctl create cluster --name=EKSCluster-${CIRCLE_WORKFLOW_ID:0:7}
+            eksctl create cluster --name=EKSCluster-${CIRCLE_WORKFLOW_ID:0:7} --zones us-east-1a,us-east-1b,us-east-1c
 
   deploy-eks-cluster:
     docker:
-      - image: circleci/python:2.7.14
+      - image: cimg/python:3.7
         user: root
     working_directory: ~/repo
     steps:
