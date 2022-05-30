@@ -64,26 +64,29 @@ jobs:
       - run:
           name: install kubectl tool and deploy the cluster
           command: |
+            echo "----------------------------------------install-awscli-------------------------------------"
             sudo apt -y install tar gzip unzip curl
             sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             sudo unzip awscliv2.zip
             sudo ./aws/install
-            echo "----------------------------------------install-awscli-------------------------------------"
+            echo "----------------------------------------install-kubectl-----------------------------------"
             curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
             sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
             kubectl version --client
-            echo "----------------------------------------install-kubectl-----------------------------------"
+            echo "-------------------------------------pull-docker-update-config----------------------------"
             # deploy cluster
             aws eks update-kubeconfig --name EKSCluster-${CIRCLE_WORKFLOW_ID:0:7}
-            docker pull $DOCKERHUB_USERNAME/$IMAGE_NAME
-            echo "-------------------------------------pull-docker-update-config----------------------------"
+            docker pull $DOCKERHUB_USERNAME/app_udacity
+            echo "---------------------------------------deploy-eks-to-cluster------------------------------"
             # kubectl port-forward 8080:80
             kubectl create namespace eks-deployment
             kubectl apply -f eks-deployment.yaml
             kubectl apply -f eks-service.yaml
-            echo "---------------------------------------deploy-eks-to-cluster------------------------------"
-            kubectl get all -n eks-deployment
-            kubectl -n eks-deployment describe service eks-deployment
+            echo "---------------------------------------------Verify-----------------------------------------"
+            kubectl get all -n app-deployment
+            kubectl -n app-deployment describe service app-deployment
+            echo "---------------------------------------------Rollout-----------------------------------------"
+            kubectl rollout restart deployment/app-deployment
             echo "---------------------------------------------DONE-----------------------------------------"
 workflows:
   default:
