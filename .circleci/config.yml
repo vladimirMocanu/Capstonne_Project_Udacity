@@ -10,14 +10,24 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
+      # - run:
+      #     name: Install lint + run lint
+      #     command: |
+      #       make setup
+      #       # python3 -m venv venv
+      #       # . venv/bin/activate
+      #       make install
+      #       make lint
       - run:
-          name: Install lint + run lint
+          name: Verify + Rollout
           command: |
-            make setup
-            # python3 -m venv venv
-            # . venv/bin/activate
-            make install
-            make lint
+            echo "---------------------------------------------Verify-----------------------------------------"
+            kubectl get all -n app-deployment
+            kubectl -n app-deployment describe service app-deployment
+            kubectl get deployments
+            echo "---------------------------------------------Rollout-----------------------------------------"
+            kubectl rollout restart deployment/app-deployment
+            echo "---------------------------------------------DONE-----------------------------------------"
 
   push-docker-image:
     docker:
@@ -89,22 +99,23 @@ jobs:
             kubectl create namespace app-deployment
             kubectl apply -f eks-cluster/eks-deployment.yaml
             kubectl apply -f eks-cluster/eks-service.yaml
-      - run:
-          name: Verify + Rollout
-          command: |
-            echo "---------------------------------------------Verify-----------------------------------------"
-            kubectl get all -n app-deployment
-            kubectl -n app-deployment describe service app-deployment
-            echo "---------------------------------------------Rollout-----------------------------------------"
-            kubectl rollout restart deployment/app-deployment
-            echo "---------------------------------------------DONE-----------------------------------------"
+      # - run:
+      #     name: Verify + Rollout
+      #     command: |
+      #       echo "---------------------------------------------Verify-----------------------------------------"
+      #       kubectl get all -n app-deployment
+      #       kubectl -n app-deployment describe service app-deployment
+      #       kubectl get deployments
+      #       echo "---------------------------------------------Rollout-----------------------------------------"
+      #       kubectl rollout restart deployment/app-deployment
+      #       echo "---------------------------------------------DONE-----------------------------------------"
 workflows:
   default:
     jobs:
       - check-code
-      - push-docker-image:
-          requires: [check-code]
-      - create-eks-cluster:
-          requires: [push-docker-image]
-      - deploy-eks-cluster:
-          requires: [create-eks-cluster]
+      # - push-docker-image:
+      #     requires: [check-code]
+      # - create-eks-cluster:
+      #     requires: [push-docker-image]
+      # - deploy-eks-cluster:
+      #     requires: [create-eks-cluster]
