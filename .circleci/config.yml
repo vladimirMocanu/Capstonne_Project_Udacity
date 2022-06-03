@@ -97,7 +97,7 @@ jobs:
             kubectl -n app-deployment describe service app-deployment
             kubectl get deployments
             echo "---------------------------------------------Rollout-----------------------------------------"
-            kubectl rollout restart deployment app-deployment
+            kubectl rollout restart deployment app-deployment -n app-deployment
             echo "---------------------------------------------DONE-----------------------------------------"
 workflows:
   default:
