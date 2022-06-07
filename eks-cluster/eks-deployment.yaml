@@ -15,28 +15,18 @@ spec:
       labels:
         app: app-deployment
     spec:
-      # affinity:
-      #   nodeAffinity:
-      #     requiredDuringSchedulingIgnoredDuringExecution:
-      #       nodeSelectorTerms:
-      #         - matchExpressions:
-      #             - key: kubernetes.io/arch
-      #               operator: In
-      #               values:
-      #                 - amd64
-      #                 - arm64
       containers:
         - name: nginx
-          image: phanhoaithu/udacity-caption-project-devops
+          image: vladimirmocanu123/app_udacity
           resources:
             requests:
-              memory: "64Mi"
+              memory: "128Mi"
               cpu: "250m"
             limits:
-              memory: "128Mi"
+              memory: "512Mi"
               cpu: "500m"
           ports:
-            - name: http
+            - name: http_port
               containerPort: 80
           imagePullPolicy: IfNotPresent
       nodeSelector:
