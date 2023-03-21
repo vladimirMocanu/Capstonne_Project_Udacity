@@ -14,9 +14,6 @@ jobs:
             command: |
               xcodebuild -version
               xcodebuild -showsdks
-              xcodebuild -list
-              xcodebuild -showdestinations
-              xcrun simctl list
               xcrun
   # check-code:
   #   docker:
