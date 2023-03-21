@@ -12,7 +12,6 @@ jobs:
         - run:
             name: Test xcode
             command: |
-              xcodebuild
               xcodebuild -version
               xcodebuild -showsdks
               xcodebuild -list
