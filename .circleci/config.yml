@@ -15,6 +15,12 @@ jobs:
               xcodebuild -version
               xcodebuild -showsdks
               xcrun
+        - run: 
+            name: Install Homebrew
+            command: |
+              python3 --version
+              ping -c 3 google.com
+
   # check-code:
   #   docker:
   #     - image: cimg/python:3.7
