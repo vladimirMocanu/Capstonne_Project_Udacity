@@ -9,10 +9,6 @@ jobs:
         xcode: "14.2.0"
       steps:
         - checkout
-        - run:
-            name: Test xcode
-            command: |
-              xcodebuild -version
         - run: 
             name: Install Homebrew
             command: |
