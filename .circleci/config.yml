@@ -13,8 +13,6 @@ jobs:
             name: Test xcode
             command: |
               xcodebuild -version
-              xcodebuild -showsdks
-              xcrun
         - run: 
             name: Install Homebrew
             command: |
